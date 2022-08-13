@@ -15,13 +15,14 @@ export async function cutVideo(videoUrl: string, startTime: number, length: numb
     //Convert milliseconds to seconds for ffmpeg
     const startTimeInSeconds = ((startTime % 60000) / 1000).toFixed(0);
     const lengthInSeconds = ((length % 60000) / 1000).toFixed(0);
+    const endSeconds = (( (startTime + length) % 60000) / 1000).toFixed(0);
 
     //Get file name and create paths
     const fileName = path.basename(videoUrl);
     const localFilePath = '../input/' + fileName;
     const outputFilePath =
-        '../output/' + startTimeInSeconds.toString()
-        + 'till' + (startTimeInSeconds + lengthInSeconds).toString()
+        '../output/' + startTimeInSeconds
+        + 'till' + endSeconds
         + fileName;
 
     await new Promise<void>((resolve, reject) => {
@@ -43,4 +44,5 @@ export async function cutVideo(videoUrl: string, startTime: number, length: numb
               })
             .run();
     })
+    return outputFilePath;
 };
