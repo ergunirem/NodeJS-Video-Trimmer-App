@@ -44,7 +44,7 @@ app.post('/', async (
     res: Response,
     next: NextFunction) => {
     try {
-
+        // console.log(req.body);
         //An instance of a model is called a document 'doc'
         //Creates a doc from APIRequest model with Request body's JSON
         const doc = new APIRequest(req.body);
@@ -57,10 +57,13 @@ app.post('/', async (
         await downloadVideoFromURL(doc.videoURL, 'input');
 
         //decodes mp4 video with FFmpeg
-        cutVideo();
+        await cutVideo(doc.videoURL, doc.startTime, doc.length);
 
         //TODO Responses should be in JSON format
-        res.send(req.body);
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.status(201); //Created
+        res.setHeader('Content-Disposition', `attachment; filename="Video.mp4"`);
+        res.send();
     } catch(error: any) {
         next(error);
     }
