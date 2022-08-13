@@ -3,6 +3,8 @@ import type { Express, Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import mongoose from "mongoose";
+import * as fs from 'fs';
+import * as path from 'path';
 import { cutVideo } from "./services/trim.service";
 import { downloadVideoFromURL } from "./services/download.service";
 import { errorHandler } from './middlewares/error.handler';
@@ -44,6 +46,14 @@ app.post('/', async (
     res: Response,
     next: NextFunction) => {
     try {
+        //Creates a GridFS bucket
+        //It is a group of MongoDB collections with the chunks of files
+        const gridfsbucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db,{
+            chunkSizeBytes:1024,
+            bucketName:'outputVideoBucket'
+        });
+        console.log("GridFSBuck: outputVideoBucket created!");
+
         // console.log(req.body);
         //An instance of a model is called a document 'doc'
         //Creates a doc from APIRequest model with Request body's JSON
@@ -57,7 +67,19 @@ app.post('/', async (
         await downloadVideoFromURL(doc.videoURL, 'input');
 
         //decodes mp4 video with FFmpeg
-        await cutVideo(doc.videoURL, doc.startTime, doc.length);
+        const outputFilePath = await cutVideo(doc.videoURL, doc.startTime, doc.length);
+        console.log(`outputFilePath ${outputFilePath}`);
+        const outputFileName = path.basename(outputFilePath);
+
+        //Uses fs to read output file & saves it to GridFSBucket chunk by chunk
+        fs.createReadStream(outputFilePath)
+            .pipe(gridfsbucket.openUploadStream(outputFileName))
+            .on('error', ()=>{
+                console.log('Error occured while uploading output to MongoDB');
+            })
+            .on('finish', ()=>{
+                console.log(`Ouput file ${outputFileName} saved to MongoDB`);
+            });
 
         //TODO Responses should be in JSON format
         res.setHeader('Access-Control-Allow-Origin', '*');
