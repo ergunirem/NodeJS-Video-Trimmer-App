@@ -5,7 +5,8 @@ import cors from "cors";
 import mongoose from "mongoose";
 import { cutVideo } from "./services/trim.service";
 import { downloadVideoFromURL } from "./services/download.service";
-import { errorHandler } from './middlewares/error.handler'
+import { errorHandler } from './middlewares/error.handler';
+import { APIRequest } from './models/models'
 
 dotenv.config();
 if (!process.env.PORT) {
@@ -17,9 +18,9 @@ const app: Express = express();
 app.use(cors());
 app.use(express.json()); //middleware to parse request body
 
-// Build the connection string with type guard for string && Create the database connection
+// Builds the connection string with type guard for string && Creates the database connection
 const MONGODB_URI: string = process.env.MONGODB_URI !== undefined ? process.env.MONGODB_URI : '';
-mongoose.connect(MONGODB_URI)
+mongoose.connect(MONGODB_URI);
 
 // CONNECTION EVENTS
 mongoose.connection.on('connected', function () {
@@ -43,12 +44,19 @@ app.post('/', async (
     res: Response,
     next: NextFunction) => {
     try {
-        console.log(req.body);
 
-        //download video from URL
-        await downloadVideoFromURL('https://www.kindacode.com/wp-content/uploads/2021/01/example.mp4', 'input');
+        //An instance of a model is called a document 'doc'
+        //Creates a doc from APIRequest model with Request body's JSON
+        const doc = new APIRequest(req.body);
 
-        //decode mp4 video with FFmpeg
+        //save() makes Mongoose insert the doc && handles simple input validation for invalid values
+        await doc.save();
+        console.log(doc);
+
+        //downloads video from URL
+        await downloadVideoFromURL(doc.videoURL, 'input');
+
+        //decodes mp4 video with FFmpeg
         cutVideo();
 
         //TODO Responses should be in JSON format
