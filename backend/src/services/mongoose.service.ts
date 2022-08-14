@@ -22,3 +22,10 @@ export function mongooseConnectDB(URI: string) {
     });
 }
 
+export function createGridFSBucket() {
+    console.log("GridFSBucket: outputVideoBucket created!");
+    return new mongoose.mongo.GridFSBucket(mongoose.connection.db,{
+        chunkSizeBytes:1024,
+        bucketName:'outputVideoBucket'
+    });
+}

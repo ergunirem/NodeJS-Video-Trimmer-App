@@ -9,7 +9,7 @@ import { cutVideo } from "./services/trim.service";
 import { downloadVideoFromURL } from "./services/download.service";
 import { errorHandler } from './middlewares/error.handler';
 import { APIRequest } from './models/models'
-import { mongooseConnectDB } from './services/mongoose.service'
+import { mongooseConnectDB, createGridFSBucket } from './services/mongoose.service'
 
 dotenv.config();
 if (!process.env.PORT) {
@@ -39,15 +39,9 @@ app.post('/', async (
     res: Response,
     next: NextFunction) => {
     try {
-        //Creates a GridFS bucket
-        //It is a group of MongoDB collections with the chunks of files
-        const gridfsbucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db,{
-            chunkSizeBytes:1024,
-            bucketName:'outputVideoBucket'
-        });
-        console.log("GridFSBuck: outputVideoBucket created!");
+        //Creates a GridFS bucket (a group of MongoDB collections with the chunks of files)
+        const gridfsbucket = createGridFSBucket();
 
-        // console.log(req.body);
         //An instance of a model is called a document 'doc'
         //Creates a doc from APIRequest model with Request body's JSON
         const doc = new APIRequest(req.body);
