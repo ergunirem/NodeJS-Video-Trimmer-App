@@ -2,14 +2,12 @@ import express from "express";
 import type { Express, Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import mongoose from "mongoose";
-import * as fs from 'fs';
 import * as path from 'path';
 import { cutVideo } from "./services/trim.service";
 import { downloadVideoFromURL } from "./services/download.service";
 import { errorHandler } from './middlewares/error.handler';
 import { APIRequest } from './models/models'
-import { mongooseConnectDB, createGridFSBucket } from './services/mongoose.service'
+import { mongooseConnectDB, createGridFSBucket, saveOutputToMongoDB } from './services/mongoose.service'
 
 dotenv.config();
 if (!process.env.PORT) {
@@ -59,14 +57,7 @@ app.post('/', async (
         const outputFileName = path.basename(outputFilePath);
 
         //Uses fs to read output file & saves it to GridFSBucket chunk by chunk
-        fs.createReadStream(outputFilePath)
-            .pipe(gridfsbucket.openUploadStream(outputFileName))
-            .on('error', ()=>{
-                console.log('Error occured while uploading output to MongoDB');
-            })
-            .on('finish', ()=>{
-                console.log(`Ouput file ${outputFileName} saved to MongoDB`);
-            });
+        saveOutputToMongoDB(gridfsbucket, outputFilePath, outputFileName);
 
         //Creates response and sends trimmed video URL in JSON format
         res.status(201); //Created

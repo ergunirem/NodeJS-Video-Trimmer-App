@@ -1,4 +1,6 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
+import * as fs from 'fs';
+// import { GridFSBucket } from 'gridfs-stream'
 
 export function mongooseConnectDB(URI: string) {
 
@@ -27,5 +29,16 @@ export function createGridFSBucket() {
     return new mongoose.mongo.GridFSBucket(mongoose.connection.db,{
         chunkSizeBytes:1024,
         bucketName:'outputVideoBucket'
+    });
+}
+
+export function saveOutputToMongoDB(gridfsbucket: any, outputFilePath: string, outputFileName: string) {
+    fs.createReadStream(outputFilePath)
+    .pipe(gridfsbucket.openUploadStream(outputFileName))
+    .on('error', ()=>{
+        console.log('Error occured while uploading output to MongoDB');
+    })
+    .on('finish', ()=>{
+        console.log(`Ouput file ${outputFileName} saved to MongoDB`);
     });
 }
