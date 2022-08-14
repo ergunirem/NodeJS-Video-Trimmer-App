@@ -37,6 +37,7 @@ export function saveOutputToMongoDB(gridfsbucket: any, outputFilePath: string, o
     .pipe(gridfsbucket.openUploadStream(outputFileName))
     .on('error', ()=>{
         console.log('Error occured while uploading output to MongoDB');
+        throw new Error('Error occured while uploading output to MongoDB');
     })
     .on('finish', ()=>{
         console.log(`Ouput file ${outputFileName} saved to MongoDB`);
