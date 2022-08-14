@@ -83,7 +83,7 @@ app.post('/', async (
 
         //Creates response and sends trimmed video URL in JSON format
         res.status(201); //Created
-        res.json({trimmedVideo: `http://localhost:${PORT}/${outputFileName}`});
+        res.json({trimmedVideo: `http://localhost:${PORT}/?filename=${outputFileName}`});
     } catch(error: any) {
         next(error);
     }
