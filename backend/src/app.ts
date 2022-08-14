@@ -9,6 +9,7 @@ import { cutVideo } from "./services/trim.service";
 import { downloadVideoFromURL } from "./services/download.service";
 import { errorHandler } from './middlewares/error.handler';
 import { APIRequest } from './models/models'
+import { mongooseConnectDB } from './services/mongoose.service'
 
 dotenv.config();
 if (!process.env.PORT) {
@@ -22,24 +23,7 @@ app.use(express.json()); //middleware to parse request body
 
 // Builds the connection string with type guard for string && Creates the database connection
 const MONGODB_URI: string = process.env.MONGODB_URI !== undefined ? process.env.MONGODB_URI : '';
-mongoose.connect(MONGODB_URI);
-
-// CONNECTION EVENTS
-mongoose.connection.on('connected', function () {
-    console.log('Mongoose default connection open');
-});
-mongoose.connection.on('error',function (err) {
-    console.log(`Mongoose default connection error: ${err}`);
-});
-mongoose.connection.on('disconnected', function () {
-    console.log('Mongoose default connection disconnected');
-});
-process.on('SIGINT', function() {
-    mongoose.connection.close(function () {
-      console.log('Mongoose default connection disconnected through app termination');
-      process.exit(0);
-    });
-});
+mongooseConnectDB(MONGODB_URI);
 
 app.get('/', function(req: Request, res: Response){
     //Gets the requested file name from URL
