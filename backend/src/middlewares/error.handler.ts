@@ -14,5 +14,5 @@ export function errorHandler(err: any, req: Request, res: Response, next: NextFu
     res.header("Content-Type", 'application/json'); //TODO Responses from the endpoint should be in JSON format.
 
     const status = err.status || 400;
-    res.status(status).send(err.message);
+    res.status(status).json({error: `${err.message}`});;
 };
