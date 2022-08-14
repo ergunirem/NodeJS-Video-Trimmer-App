@@ -81,11 +81,9 @@ app.post('/', async (
                 console.log(`Ouput file ${outputFileName} saved to MongoDB`);
             });
 
-        //TODO Responses should be in JSON format
-        res.setHeader('Access-Control-Allow-Origin', '*');
+        //Creates response and sends trimmed video URL in JSON format
         res.status(201); //Created
-        res.setHeader('Content-Disposition', `attachment; filename="Video.mp4"`);
-        res.send();
+        res.json({trimmedVideo: `http://localhost:${PORT}/${outputFileName}`});
     } catch(error: any) {
         next(error);
     }
