@@ -42,3 +42,15 @@ export function saveOutputToMongoDB(gridfsbucket: any, outputFilePath: string, o
         console.log(`Ouput file ${outputFileName} saved to MongoDB`);
     });
 }
+
+export function downloadOutputFromMongoDB(gridfsbucket: any, outputFilePath: string, outputFileName: string) {
+    gridfsbucket.openDownloadStreamByName(outputFileName)
+    .pipe(fs.createWriteStream(`${outputFilePath}${outputFileName}`))
+    .on('error', ()=>{
+        console.log('Error occured while downloading output from MongoDB');
+        throw new Error('Error occured while uploading output to MongoDB');
+    })
+    .on('finish', ()=>{
+        console.log(`Ouput file ${outputFileName} downloaded from MongoDB`);
+    });
+}

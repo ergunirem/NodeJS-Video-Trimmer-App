@@ -7,7 +7,8 @@ import { cutVideo } from "./services/trim.service";
 import { downloadVideoFromURL } from "./services/download.service";
 import { errorHandler } from './middlewares/error.handler';
 import { APIRequest } from './models/models'
-import { mongooseConnectDB, createGridFSBucket, saveOutputToMongoDB } from './services/mongoose.service'
+import { mongooseConnectDB, createGridFSBucket, saveOutputToMongoDB, downloadOutputFromMongoDB } from './services/mongoose.service'
+import { fileExists } from './utils/utils';
 
 dotenv.config();
 if (!process.env.PORT) {
@@ -23,10 +24,16 @@ app.use(express.json()); //middleware to parse request body
 const MONGODB_URI: string = process.env.MONGODB_URI !== undefined ? process.env.MONGODB_URI : '';
 mongooseConnectDB(MONGODB_URI);
 
-app.get('/', function(req: Request, res: Response){
+app.get('/', async function(req: Request, res: Response){
     //Gets the requested file name from URL
-    const fileName = req.query["filename"] !== undefined ? req.query["filename"] : '';
+    const fileName = req.query["filename"] !== undefined ? req.query["filename"] as string : '';
 
+    //If file does not exists locally, download it from MongoDB
+    if(!fileExists(`../output/${fileName}`))
+    {
+        const gridfsbucket = createGridFSBucket();
+        await downloadOutputFromMongoDB(gridfsbucket, '../output/', fileName);
+    }
     // Transfers the file at path as an ‘attachment’.
     // Browser will prompt client to download
     res.download(`../output/${fileName}`);
