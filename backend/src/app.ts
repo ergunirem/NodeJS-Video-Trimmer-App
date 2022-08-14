@@ -41,6 +41,15 @@ process.on('SIGINT', function() {
     });
 });
 
+app.get('/', function(req: Request, res: Response){
+    //Gets the requested file name from URL
+    const fileName = req.query["filename"] !== undefined ? req.query["filename"] : '';
+
+    // Transfers the file at path as an ‘attachment’.
+    // Browser will prompt client to download
+    res.download(`../output/${fileName}`);
+});
+
 app.post('/', async (
     req: Request,
     res: Response,
