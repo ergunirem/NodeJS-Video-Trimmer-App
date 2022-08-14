@@ -9,6 +9,7 @@ import { errorHandler } from './middlewares/error.handler';
 import { APIRequest } from './models/models'
 import { mongooseConnectDB, createGridFSBucket, saveOutputToMongoDB, downloadOutputFromMongoDB } from './services/mongoose.service'
 import { fileExists } from './utils/utils';
+import { validateInput } from './services/validation.service';
 
 dotenv.config();
 if (!process.env.PORT) {
@@ -54,6 +55,7 @@ app.post('/', async (
         //save() makes Mongoose insert the doc && handles simple input validation for invalid values
         await doc.save();
         console.log(doc);
+        validateInput(doc);
 
         //downloads video from URL
         await downloadVideoFromURL(doc.videoURL, 'input');

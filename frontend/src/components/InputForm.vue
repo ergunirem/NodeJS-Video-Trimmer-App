@@ -21,7 +21,9 @@
           <InputNumber v-model="startTime" />
         </div>
         <div class="col-offset-5" margin>
-          <small> * Start time can only be numbers in milliseconds </small>
+          <small>
+            * Start time can only be numbers in milliseconds i.e. 3000
+          </small>
         </div>
       </div>
       <div class="grid align-items-center">
@@ -32,7 +34,9 @@
           <InputNumber v-model="length" />
         </div>
         <div class="col-offset-5" margin>
-          <small> * Length can only be numbers in milliseconds </small>
+          <small>
+            * Length can only be numbers in milliseconds i.e. 2000
+          </small>
         </div>
       </div>
       <div class="grid align-items-center">

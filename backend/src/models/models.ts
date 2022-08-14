@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
 
 //Creates an interface representing a document in MongoDB
-interface IAPIRequestSchema {
+export interface IAPIRequestSchema {
     videoURL: string;
     startTime: number;
     length: number;
