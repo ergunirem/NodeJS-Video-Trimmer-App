@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import * as fs from 'fs';
-// import { GridFSBucket } from 'gridfs-stream'
 
 export function mongooseConnectDB(URI: string) {
 
