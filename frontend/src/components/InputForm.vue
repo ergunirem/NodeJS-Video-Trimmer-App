@@ -47,6 +47,9 @@
             >
           </transition-group>
         </div>
+        <a class="link" :href="downloadLink" v-if="isVisible" download
+          >Download Trimmed Video</a
+        >
       </div>
     </div>
   </div>
@@ -67,30 +70,39 @@ const videoURL = ref();
 const startTime = ref();
 const length = ref();
 
+const isVisible = ref(false);
+const downloadLink = ref("");
+
 async function sendData() {
   const postBody = {
     videoURL: videoURL.value,
     startTime: startTime.value,
     length: length.value,
   };
+
   console.log(postBody);
 
   await axios
     .post("http://localhost:3000/", postBody)
     .then((res) => {
-      //Perform Success Action
+      //Performs Success Action
       console.log(res);
+
+      //Renders the link with the public URL received from the backend
+      isVisible.value = true;
+      downloadLink.value = res.data.trimmedVideo;
       messages.value = [
         {
           severity: "success",
-          content: `Success:  ${res.data}`,
+          content:
+            "Success: Please click the link below to download the output",
           id: count.value++,
         },
       ];
     })
     .catch((error) => {
+      //Performs Fail Action
       console.log(error);
-      // error.response.status Check status code
       messages.value = [
         {
           severity: "error",
@@ -108,5 +120,9 @@ async function sendData() {
   padding-right: 12px;
   font-weight: 500;
   font-size: large;
+}
+
+.link {
+  color: whitesmoke;
 }
 </style>
